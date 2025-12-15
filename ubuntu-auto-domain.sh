@@ -44,39 +44,45 @@ echo ""
 echo -e "${BLUE}请输入配置信息:${NC}"
 echo ""
 
-read -p "域名: " DOMAIN
-read -p "应用端口: " APP_PORT
-read -p "邮箱: " EMAIL
-read -p "文件上传大小限制 (如: 100M, 500M, 1G，默认 100M): " UPLOAD_SIZE
+# ==========================================
+# 收集配置信息
+# ==========================================
+echo -e "${BLUE}请输入配置信息:${NC}"
+echo ""
+
+# 读取域名
+while [ -z "$DOMAIN" ]; do
+    read -p "域名: " DOMAIN </dev/tty
+    if [ -z "$DOMAIN" ]; then
+        print_error "域名不能为空，请重新输入"
+    elif [[ ! "$DOMAIN" =~ \. ]]; then
+        print_error "域名格式错误，请输入完整域名（如: example.com）"
+        DOMAIN=""
+    fi
+done
+
+# 读取端口
+while [ -z "$APP_PORT" ]; do
+    read -p "应用端口: " APP_PORT </dev/tty
+    if [ -z "$APP_PORT" ]; then
+        print_error "端口不能为空，请重新输入"
+    elif ! [[ "$APP_PORT" =~ ^[0-9]+$ ]] || [ "$APP_PORT" -lt 1 ] || [ "$APP_PORT" -gt 65535 ]; then
+        print_error "端口必须在 1-65535 之间，请重新输入"
+        APP_PORT=""
+    fi
+done
+
+# 读取邮箱
+while [ -z "$EMAIL" ]; do
+    read -p "邮箱: " EMAIL </dev/tty
+    if [ -z "$EMAIL" ]; then
+        print_error "邮箱不能为空，请重新输入"
+    fi
+done
+
+# 读取上传限制
+read -p "文件上传大小限制 (如: 100M, 500M, 1G，默认 100M): " UPLOAD_SIZE </dev/tty
 UPLOAD_SIZE=${UPLOAD_SIZE:-100M}
-
-# 验证输入 - 检查是否为空
-if [ -z "$DOMAIN" ]; then
-    print_error "域名不能为空"
-    exit 1
-fi
-
-if [ -z "$APP_PORT" ]; then
-    print_error "端口不能为空"
-    exit 1
-fi
-
-if [ -z "$EMAIL" ]; then
-    print_error "邮箱不能为空"
-    exit 1
-fi
-
-# 验证域名格式
-if [[ ! "$DOMAIN" =~ \. ]]; then
-    print_error "域名格式错误，请输入完整域名（如: example.com 或 sub.example.com）"
-    exit 1
-fi
-
-# 验证端口范围
-if ! [[ "$APP_PORT" =~ ^[0-9]+$ ]] || [ "$APP_PORT" -lt 1 ] || [ "$APP_PORT" -gt 65535 ]; then
-    print_error "端口必须在 1-65535 之间"
-    exit 1
-fi
 
 # 确认配置
 echo ""
@@ -91,7 +97,7 @@ echo -e "${YELLOW}╚═══════════════════�
 echo ""
 echo -e "${RED}⚠️  重要: 确保应用监听在 127.0.0.1:$APP_PORT${NC}"
 echo ""
-read -p "确认无误按 Enter 继续..."
+read -p "确认无误按 Enter 继续..." </dev/tty
 
 # ==========================================
 # 1. 处理系统自动更新
