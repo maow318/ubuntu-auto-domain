@@ -50,12 +50,29 @@ read -p "邮箱: " EMAIL
 read -p "文件上传大小限制 (如: 100M, 500M, 1G，默认 100M): " UPLOAD_SIZE
 UPLOAD_SIZE=${UPLOAD_SIZE:-100M}
 
-# 验证输入
-if [[ ! "$DOMAIN" =~ ^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$ ]]; then
-    print_error "域名格式错误"
+# 验证输入 - 检查是否为空
+if [ -z "$DOMAIN" ]; then
+    print_error "域名不能为空"
     exit 1
 fi
 
+if [ -z "$APP_PORT" ]; then
+    print_error "端口不能为空"
+    exit 1
+fi
+
+if [ -z "$EMAIL" ]; then
+    print_error "邮箱不能为空"
+    exit 1
+fi
+
+# 验证域名格式
+if [[ ! "$DOMAIN" =~ \. ]]; then
+    print_error "域名格式错误，请输入完整域名（如: example.com 或 sub.example.com）"
+    exit 1
+fi
+
+# 验证端口范围
 if ! [[ "$APP_PORT" =~ ^[0-9]+$ ]] || [ "$APP_PORT" -lt 1 ] || [ "$APP_PORT" -gt 65535 ]; then
     print_error "端口必须在 1-65535 之间"
     exit 1
